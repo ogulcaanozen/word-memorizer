@@ -99,14 +99,14 @@ class LanguageGUI:
     def quiz_screen(self):
         self.wordsToPractice = AppUtils.get_words_to_practice()
         i = 0
+        isContinuing = True
+        
+        while isContinuing:
+            # Create a new quiz window
+            quiz_window = tk.Toplevel(self.root)
+            quiz_window.title("Quiz")
+            quiz_window.geometry("600x370")
 
-        # Create a new quiz window
-        quiz_window = tk.Toplevel(self.root)
-        quiz_window.title("Quiz")
-        quiz_window.geometry("600x200")
-
-        def ask_question():
-            nonlocal i
             # Call quiz_words to get the word to practice and options
             word_to_practice = self.wordsToPractice[i]
             options = AppUtils.quiz_words(word_to_practice)
@@ -117,64 +117,45 @@ class LanguageGUI:
             question_label.pack(pady=10)
 
             # Shuffle the options for randomness
-            random_options = AppUtils.shuffle_options(options)
+            random_options = AppUtils.shuffle(options)
 
             # Create buttons for each option
             for option in random_options:
                 button = tk.Button(quiz_window, text=option, command=lambda o=option: self.check_answer(o, word_to_practice, quiz_window))
+
                 button.pack(pady=5)
 
-            # Wait for the user to answer before moving to the next question
+            exitButton = tk.Button(quiz_window, text="Exit the Quiz", command=self.exit_quiz(isContinuing), bg="red")
+            exitButton.pack(pady=30)
+            print(isContinuing)
+            # Wait for the quiz window to be closed before proceeding
             quiz_window.wait_window()
 
-            # Clear the question and options for the next round
-            question_label.destroy()
-            for widget in quiz_window.winfo_children():
-                if isinstance(widget, tk.Button):
-                    widget.destroy()
-
             # Increment to the next word
-            i += 1
-
-            # Check if there are more words to practice
-            if i < len(self.wordsToPractice):
-                # After a delay (you can adjust this), ask the next question
-                quiz_window.after(2000, ask_question)
+            if i < len(self.wordsToPractice) - 1:
+                i += 1
             else:
-                # If there are no more words, close the quiz window
-                quiz_window.destroy()
-
-        # Start asking the first question
-        ask_question()
-
-
+                AppUtils.shuffle(self.wordsToPractice)
+                i = 0
 
     
     def check_answer(self, selected_option, correct_word, quiz_window):
         if selected_option == get_meaning_by_word(correct_word):
-            messagebox.showinfo("Correct", "Congratulations! You selected the correct answer.")
+            messagebox.showinfo("Correct", f"Congratulations! {selected_option} was the correct answer.")
         else:
             correct_meaning = get_meaning_by_word(correct_word)
             messagebox.showerror("Incorrect", f"Sorry, the correct answer is: {correct_meaning}")
 
-        # Clear the previous question and options
-        for widget in quiz_window.winfo_children():
-            widget.destroy()
+        print("checkpoint")
 
-        # Call quiz_words to get the word to practice and options
-        options = AppUtils.quiz_words(correct_word)
+        # Destroy the quiz_window
+        quiz_window.destroy()
 
-        # Display the next question
-        question_label = tk.Label(quiz_window, text=f"Which of the following is the meaning of the word '{correct_word}'?")
-        question_label.pack(pady=10)
+    def exit_quiz(self, isContinuing):
+        isContinuing = False
 
-        # Shuffle the options for randomness
-        random_options = AppUtils.shuffle_options(options)
+        
+        
 
-        # Create buttons for each option
-        for option in random_options:
-            button = tk.Button(quiz_window,
-                               text=option,
-                               command=lambda o=option: self.check_answer(o, correct_word, quiz_window))
-            button.pack(pady=5)
+
 

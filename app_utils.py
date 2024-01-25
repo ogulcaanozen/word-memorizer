@@ -38,10 +38,10 @@ class AppUtils:
         return [meaning for meaning in all_meanings if meaning != excluded_meaning]
 
     @staticmethod
-    def shuffle_options(options):
+    def shuffle(listToShuffle):
         # Shuffle the options
-        random.shuffle(options)
-        return options
+        random.shuffle(listToShuffle)
+        return listToShuffle
 
     @staticmethod
     def quiz_words(word_to_practice):
